@@ -35,9 +35,18 @@
         <a href="cat.php?action=show" class="w3-bar-item w3-button w3-right-align"><i
                     class="fa fa-tasks"></i> 
             دسته بندی ها</a>
+        <a href="vahed.php?action=show" class="w3-bar-item w3-button w3-right-align"><i
+                    class="fa fa-tasks"></i> 
+            واحدهای اندازه گیری</a>
+        <a href="gallery.php?action=show" class="w3-bar-item w3-button w3-right-align"><i
+                    class="fa fa-tasks"></i> 
+            گالری</a>
         <a href="menu.php?action=show" class="w3-bar-item w3-button w3-right-align"><i
                     class="fa fa-bars"></i> 
             منوها</a>
+        <a href="kala.php?action=show" class="w3-bar-item w3-button w3-right-align"><i
+                    class="fa fa-bars"></i> 
+            کالاها</a>
         <a href="sitemap.php" class="w3-bar-item w3-button w3-right-align"><i
                     class="fa fa-sitemap"></i> 
             ایجاد نقشه سایت</a>
