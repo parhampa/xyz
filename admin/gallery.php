@@ -60,8 +60,6 @@ include("nav.php");
         $fm->submit();
         $fm->addform();
         $fm->show();
-        $md = new modal();
-
         ?>
 
     </div>

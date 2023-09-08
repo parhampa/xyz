@@ -18,6 +18,7 @@ include("check_admin_session.php");
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="../lib/js/jquery.js"></script>
+<script src="../lib/js/palib.js"></script>
 <script src="js/fnuser.js"></script>
 <script src="js/modal.js"></script>
 <style>
@@ -55,6 +56,14 @@ include("nav.php");
         $fm = new makeform();
         $fm->set_tbl_key("kala", "id", 1);
         $fm->CSRF_token();
+        $fm->label("دسته بندی", "w3-text-green")
+            ->select()
+            ->selectid("cat_id")
+            ->selectname("cat_id")
+            ->selectclasses("w3-select w3-border")
+            ->selectdb("cat", "title", "id", "", " where `ty`=5")
+            ->end()
+            ->sndform("cat_id", 2, 1, "دسته بندی", 1, 1);
 
         $fm->fast_string_input("عنوان کالا", "title", "title", 1, 1, 1);
         $fm->label("کد فروشگاه", "w3-text-green")
@@ -66,9 +75,23 @@ include("nav.php");
             ->end()
             ->sndform("shop_id", 1, 1, "کد فروشگاه", 1, 1)
             ->must_be_in("shops", "id", "shop_id");
+        $fm->input()
+            ->inpval("انتخاب فروشگاه")
+            ->inptype("button")
+            ->inpclasses("w3-btn w3-round w3-green")
+            ->onclick("")
+            ->end();
+        $fm->all .= "<br>";
+
+        $fm->label("واحد اندازه گیری", "w3-text-green")
+            ->select()
+            ->selectid("vahed_id")
+            ->selectname("vahed_id")
+            ->selectclasses("w3-select w3-border")
+            ->selectdb("vahed", "title", "id")
+            ->end()
+            ->sndform("vahed_id", 2, 1, "واحد اندازه گیری");
         $fm->fast_textarea("توضیحات کالا", "txt", "txt", 1);
-        $fm->fast_number_input("قیمت ورودی به شرکت", "price_in", "price_in", 1);
-        $fm->fast_number_input("قیمت خروجی از شرکت", "price_out", "price_out", 1);
         $fm->label("کد تصویر", "w3-text-green")
             ->input()
             ->inptype("number")
@@ -78,34 +101,104 @@ include("nav.php");
             ->end()
             ->sndform("pic_id", 1, 1, "کد تصویر")
             ->must_be_in("pic", "id", "pic_id");
-        $fm->label("دسته بندی", "w3-text-green")
-            ->select()
-            ->selectid("cat_id")
-            ->selectname("cat_id")
-            ->selectclasses("w3-select w3-border")
-            ->selectdb("cat", "title", "id", "", " where `ty`=5")
-            ->end()
-            ->sndform("cat_id", 2, 1, "دسته بندی", 1, 1);
+        $fm->all .= "<div style='display: none;' id='selpic' onclick='hideselpic();'><img src='' style='width: 33%;' id='picplc'></div>";
+        $fm->input()
+            ->inptype("button")
+            ->inpval("انتخاب تصویر")
+            ->inpclasses("w3-btn w3-round w3-green")
+            ->onclick("document.getElementById('piclist').style.display='block';")
+            ->end();
+        $fm->all .= "<br>";
+
+        $fm->fast_number_input("قیمت ورودی به شرکت", "price_in", "price_in", 1);
+        $fm->fast_number_input("قیمت خروجی از شرکت", "price_out", "price_out", 1);
+
         $fm->fast_number_input("دستمزد بازاریابی", "price_visitor", "price_visitor", 1);
         $fm->fast_number_input("دستمزد شرکت", "price_us", "price_us", 1);
         $fm->fast_number_input("تخفیف", "price_off", "price_off", 1);
         $fm->fast_number_input("تعداد موجودی", "countt", "countt", 1);
-        $fm->label("واحد اندازه گیری", "w3-text-greeen")
-            ->select()
-            ->selectid("vahed_id")
-            ->selectname("vahed_id")
-            ->selectclasses("w3-select w3-border")
-            ->selectdb("vahed", "title", "id")
-            ->end()
-            ->sndform("vahed_id", 2, 1, "واحد اندازه گیری");
 
 
         $fm->submit();
         $fm->addform();
         $fm->show();
         ?>
+        <?php
+        $md = new modal();
+        $md->add_inner_modal_top("piclist");
+        ?>
+        <div style="width: 100%; text-align: center;">
+            <input type="text" name="ttl" id="ttl" class="picfilter">
+            <input type="button" value="جستجو" onclick="load_list_pic();">
+            <input type="button" value="آپلود تصویر" onclick="window.open('gallery.php')">
+            <br>
+            <br>
+        </div>
+        <div style="width: 100%; direction: rtl;" id="tblpic">
+            <table class="w3-table-all">
+                <tr>
+                    <th style="text-align: center;">
+                        عنوان تصویر
+                    </th>
+                    <th style="text-align: center;">
+                        تصویر
+                    </th>
+                    <th style="text-align: center;">
+                        عملیات
+                    </th>
+                </tr>
+                <?php
+                $dbt = new database();
+                $sqlt = "select * from `pic` order by `id` limit 0,10";
+                $dbt->connect()->query($sqlt);
+                while ($fildt = mysqli_fetch_assoc($dbt->res)) {
+                    ?>
+                    <tr>
+                        <td style="text-align: center;"><?php echo($fildt['title']); ?></td>
+                        <td style="text-align: center;">
+                            <img id="tmppic<?php echo($fildt['id']); ?>" src="<?php echo($fildt['address']); ?>"
+                                 style="width: 30%;">
+                        </td>
+                        <td style="text-align: center;">
+                            <span onclick="select_picture(<?php echo($fildt['id']); ?>);"
+                                  class="w3-btn w3-green w3-round">انتخاب</span>
+                        </td>
+                    </tr>
+                    <?php
+                }
+                ?>
+            </table>
+            <script>
+                function load_list_pic() {
+                    placeid = "tblpic";
+                    document.getElementById(placeid).innerHTML = "";
 
+                    postobj.send_type = "post";
+                    postobj.post_url = "list_pic_tbl.php";
+                    postobj.after_success = function (data) {
+                        document.getElementById(placeid).innerHTML = data;
+                    };
+                    res_obj_postdata("picfilter");
+                }
+
+                function hideselpic() {
+                    document.getElementById('selpic').style.display = "none";
+                }
+
+                function select_picture(id) {
+                    document.getElementById('pic_id').value = id
+                    document.getElementById('piclist').style.display = "none";
+                    var tmpid = 'tmppic' + id;
+                    document.getElementById('picplc').src = document.getElementById(tmpid).src;
+                    document.getElementById('selpic').style.display = "";
+                }
+            </script>
+        </div>
+        <?php
+        $md->add_inner_modal_down();
+        ?>
     </div>
+
     <!-- End page content -->
 </div>
 <?php
