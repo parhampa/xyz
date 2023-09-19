@@ -66,8 +66,8 @@ include("nav.php");
             ->sndform("cat_id", 2, 1, "دسته بندی", 1, 1);
 
         $fm->fast_string_input("عنوان کالا", "title", "title", 1, 1, 1);
-        $fm->label("کد فروشگاه", "w3-text-green")
-            ->input()
+        $fm->label("کد فروشگاه", "w3-text-green");
+        $fm->input()
             ->inptype("number")
             ->inpname("shop_id")
             ->inpid("shop_id")
@@ -75,11 +75,12 @@ include("nav.php");
             ->end()
             ->sndform("shop_id", 1, 1, "کد فروشگاه", 1, 1)
             ->must_be_in("shops", "id", "shop_id");
+        $fm->all = $fm->all . "عنوان فروشگاه: <span id='titleplcco'></span><br>";
         $fm->input()
             ->inpval("انتخاب فروشگاه")
             ->inptype("button")
             ->inpclasses("w3-btn w3-round w3-green")
-            ->onclick("")
+            ->onclick("document.getElementById('co_list').style.display='block';")
             ->end();
         $fm->all .= "<br>";
 
@@ -122,8 +123,63 @@ include("nav.php");
         $fm->submit();
         $fm->addform();
         $fm->show();
+
+
+        $md = new modal();
+        $md->add_inner_modal_top("co_list");
         ?>
+        <div style="width: 100%; text-align: center;">
+            <input type="text" name="ttl" id="ttl" class="cofilter">
+            <input type="button" value="جستجو" onclick="load_list_co();">
+            <input type="button" value="درج فروشگاه جدید" onclick="window.open('shops.php')">
+            <br>
+            <br>
+        </div>
+        <script>
+            function select_co(id) {
+                document.getElementById('shop_id').value = id;
+                var newid = "titleid" + id;
+                document.getElementById('titleplcco').innerHTML = document.getElementById(newid).innerHTML;
+                document.getElementById('co_list').style.display = 'none';
+            }
+        </script>
+        <div style="width: 100%; direction: rtl;" id="tblco">
+            <table class="w3-table-all">
+                <tr>
+                    <th style="text-align: center;">عنوان شرکت</th>
+                    <th style="text-align: center;">شهر</th>
+                    <th style="text-align: center;">عملیات</th>
+                </tr>
+                <?php
+                $sqlt = "select * from `shops` order by `id` desc limit 0,10";
+                $dbt = new database();
+                $dbt->connect()->query($sqlt);
+                while ($fildt = mysqli_fetch_assoc($dbt->res)) {
+                    ?>
+                    <tr>
+                        <td style="text-align: center;"
+                            id="titleid<?php echo($fildt['id']); ?>"><?php echo($fildt['title']); ?></td>
+                        <td style="text-align: center;"><?php
+                            $cid = $fildt['city'];
+                            $sqltt = "select * from `citis` where `id`=$cid";
+                            $dbtt = new database();
+                            $dbtt->connect()->query($sqltt);
+                            $fildtt = mysqli_fetch_assoc($dbtt->res);
+                            echo($fildtt['title']);
+                            ?></td>
+                        <td style="text-align: center;">
+                            <input type="button" value="انتخاب فروشگاه" class="w3-btn w3-round w3-green"
+                                   onclick="select_co(<?php echo($fildt['id']); ?>)">
+                        </td>
+                    </tr>
+                    <?php
+                }
+                ?>
+            </table>
+        </div>
         <?php
+        $md->add_inner_modal_down();
+
         $md = new modal();
         $md->add_inner_modal_top("piclist");
         ?>
@@ -169,6 +225,18 @@ include("nav.php");
                 ?>
             </table>
             <script>
+                function load_list_co() {
+                    placeid = "tblco";
+                    document.getElementById(placeid).innerHTML = "";
+
+                    postobj.send_type = "post";
+                    postobj.post_url = "list_co_tbl.php";
+                    postobj.after_success = function (data) {
+                        document.getElementById(placeid).innerHTML = data;
+                    };
+                    res_obj_postdata("cofilter");
+                }
+
                 function load_list_pic() {
                     placeid = "tblpic";
                     document.getElementById(placeid).innerHTML = "";

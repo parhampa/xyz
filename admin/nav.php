@@ -25,6 +25,10 @@
                     class="fa fa-user"></i> 
             فروشگاه ها</a>
 
+        <a href="customers.php?action=show" class="w3-bar-item w3-button w3-right-align"><i
+                    class="fa fa-user"></i> 
+            مشتریان</a>
+
         <a href="mynote.php?action=show" class="w3-bar-item w3-button w3-right-align"><i
                     class="fa fa-sticky-note fa-fw"></i> 
             یادداشت های من</a>
